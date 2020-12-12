@@ -2,6 +2,8 @@
 
 # python3 ls8.py call.ls8
 # python3 ls8.py sctest.ls8
+# python3 ls8.py bitwisetest.ls8
+
 import sys
 #-------------------------------------------------
     # operation codes
@@ -94,8 +96,16 @@ class CPU:
             JMP: self.jmp,
             JEQ: self.jeq,
             JNE: self.jne,
-
-
+            AND: self.and_bitwise,
+            OR: self.or_bitwise,
+            XOR: self.xor_bitwise,
+            NOT: self.not_bitwise,
+            SHL: self.shl,
+            SHR: self.shr,
+            JLT: self.jlt,
+            INC: self.inc,
+            DEC: self.dec,
+     
 
         }
 
@@ -135,6 +145,12 @@ class CPU:
 
     def sub(self,operand_a, operand_b):
         self.reg[operand_a] -= self.reg[operand_b]
+
+    def inc(self,operand_a, operand_b):
+        self.reg[operand_a] += 1
+
+    def dec(self,operand_a, operand_b):
+        self.reg[operand_a] -= 1
 
     def div(self,operand_a, operand_b):
         if self.reg[operand_b] != 0:
@@ -247,25 +263,32 @@ class CPU:
         else:
             self.pc += 2
 
-      
-    
-    def load_hardcoded(self):
-        # For now, we've just hardcoded a program:
-        address = 0 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+   
 
-        for instruction in program:
-            self.ram[address] = instruction
-            print(self.ram)
-            address += 1
+
+
+    #----------------------------------------------
+    # Bitwise operation functions
+    #----------------------------------------------
+    def and_bitwise(self,operand_a, operand_b):
+        self.reg[operand_a] &= self.reg[operand_b]
+
+    def or_bitwise(self,operand_a, operand_b):
+        self.reg[operand_a] |= self.reg[operand_b]
+
+    def xor_bitwise(self,operand_a, operand_b):
+        self.reg[operand_a] ^= self.reg[operand_b]
+
+    def not_bitwise(self,operand_a, operand_b):
+        self.reg[operand_a] = ~self.reg[operand_a] 
+
+    def shl(self,operand_a, operand_b):
+        self.reg[operand_a] <<= self.reg[operand_b]
+
+    def shr(self,operand_a, operand_b):
+        self.reg[operand_a] >>=  self.reg[operand_b]
+
+
 
 #-------------------------------------------------
     # load function
@@ -381,6 +404,15 @@ class CPU:
 
             else:
                 self.set_pc_operation(IR,operand_a, operand_b )
+
+        test_var = 0b00000011 & 0b00000101 | 0b00001110 
+        xor = test_var^ 0b00000101
+        shl = xor << 0b00000011
+        result = shl%0b00110010 # % 50 => 30
+
+        print("-------test result----------")
+        print("result ", result)
+        print("~result ",~result)
 
        
         
