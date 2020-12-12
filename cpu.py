@@ -1,6 +1,7 @@
 """CPU functionality."""
 
 # python3 ls8.py call.ls8
+# python3 ls8.py sctest.ls8
 import sys
 #-------------------------------------------------
     # operation codes
@@ -41,11 +42,8 @@ JGE = 0b01011010
 
 # Other
 NOP = 0b00000000
-
 HLT = 0b00000001 
-
 LDI = 0b10000010 
-
 LD =  0b10000011 
 ST  = 0b10000100 
 
@@ -71,6 +69,8 @@ class CPU:
         self.reg[self.stack_pointer] = 0xF4
         self.address = 0
         self.hulted = True
+        # flag for CMP, JEQ, and JNE
+        self.fl = 0b00000000
 
 #-------------------------------------------------
     # branchtabel 
@@ -90,6 +90,12 @@ class CPU:
             CALL: self.call,
             RET: self.ret,
             ST: self.st,
+            CMP: self.cmpp,
+            JMP: self.jmp,
+            JEQ: self.jeq,
+            JNE: self.jne,
+
+
 
         }
 
@@ -195,6 +201,51 @@ class CPU:
     def st(self,operand_a, operand_b):
         # Store value in operand_b in the address stored in operand_a.
         self.ram_write(self.reg[operand_b], self.reg[operand_a])
+
+#-------------------------------------------------
+    # sprint challenge functions
+#------------------------------------------------- 
+    # Jump to the address stored in the given register.
+    def jmp(self,operand_a, operand_b):
+        # Set the PC to the address stored in the given register.
+        self.pc = self.reg[operand_a]
+        
+
+    # Compare the values in two registers.
+    def cmpp(self,operand_a, operand_b):
+        # If registerA is less than registerB, set the Less-than L flag to 1, otherwise set it to 0.
+        if(self.reg[operand_a] < self.reg[operand_b]):
+            self.fl = 0b00000100
+        # If registerA is greater than registerB, set the Greater-than G flag to 1, otherwise set it to 0.
+        elif(self.reg[operand_a] > self.reg[operand_b]):
+            self.fl = 0b00000010
+        # If they are equal, set the Equal E flag to 1, otherwise set it to 0.
+        elif(self.reg[operand_a] == self.reg[operand_b]):
+            self.fl = 0b00000001
+        else:
+            self.fl = 0b00000000
+
+    # If equal flag is set (true), jump to the address stored in the given register.
+    def jeq(self,operand_a, operand_b):
+        if self.fl == 0b00000001:
+            self.pc = self.reg[operand_a]
+        else:
+            self.pc += 2
+
+    # If E flag is clear (false, 0), jump to the address stored in the given register.
+    def jne(self,operand_a, operand_b):
+        if self.fl != 0b00000001:
+            self.pc = self.reg[operand_a]
+        else:
+            self.pc += 2
+
+        
+    # If less-than flag is set (true), jump to the address stored in the given register.
+    def jlt(self,operand_a, operand_b):
+        if self.fl == 0b00000100:
+            self.pc = self.reg[operand_a]
+        else:
+            self.pc += 2
 
       
     
